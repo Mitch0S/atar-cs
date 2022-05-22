@@ -1,12 +1,13 @@
 import sqlite3
+import time
 
+print(time.time())
 
 class SQL:
     def __init__(self):
         pass
 
     def check_membership_number(self, **kwargs):
-
         allowed_values = '1234567890'
 
         if kwargs['membership_number'] == '':
@@ -28,6 +29,18 @@ class SQL:
             return {'status': 'ok', 'reason': 'successfully logged in', 'data': {'user': query_response}}
         else:
             return {'status': 'error', 'reason': 'incorrect membership number', 'data': {}}
+
+
+
+    def registration(self, **kwargs):
+        required_kwargs = ['first_name', 'last_name', 'email', 'mobile_number', 'membership_number', 'business_id', 'shirt_size']
+        connection = sqlite3.connect('./pages/sql/online_booking_system.db')
+        cursor = connection.cursor()
+        sql = f"""INSERT INTO attendees (first_name, last_name, email, mobile_number, membership_number, company_id, shirt_size)
+                       VALUES ("{kwargs['first_name']}", "{kwargs['last_name']}", "{kwargs['email']}", "{kwargs['mobile_number']}", "{kwargs['membership_number']}", "{kwargs['company_id']}", "{kwargs['shirt_size']}")
+               """
+        query = cursor.execute(sql)
+        query_response = query.fetchone()
 
     def get_attendee_booking(self, **kwargs):
         connection = sqlite3.connect('./pages/sql/online_booking_system.db')
@@ -55,7 +68,7 @@ class SQL:
 
 
     def get_booking_availability(self, **kwargs):
-        connection = sqlite3.connect('online_booking_system.db')
+        connection = sqlite3.connect('./pages/sql/online_booking_system.db')
         cursor = connection.cursor()
         sql = f'SELECT COUNT(workshop_id) FROM workshop_bookings WHERE workshop_id = {kwargs["workshop_id"]}'
         query = cursor.execute(sql)
@@ -77,8 +90,17 @@ class SQL:
                 'current_bookings': current_booking_amount
             }}
 
+    def get_companies(self):
+        connection = sqlite3.connect('./pages/sql/online_booking_system.db')
+        cursor = connection.cursor()
+        sql = f'SELECT * FROM companies'
+        query = cursor.execute(sql)
+        companies = query.fetchall()
+        company_dict = {}
+        for company in companies:
+            company_dict[company[1]] = company[0]
 
-
+        return {'status': 'ok', 'reason': 'successfully got companies', 'data': {'companies': company_dict}}
 
 
 # print(SQL().check_membership_number(membership_number=1234567890))

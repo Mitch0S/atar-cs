@@ -4,6 +4,7 @@ Task 4 - Managing Data (Year 11 ATAR Computer Science)
 Database and App written by Mitch Naake, Butler College
 """
 import tkinter
+from tkinter import ttk
 import customtkinter
 
 import pages
@@ -17,7 +18,7 @@ class App:
     # Window Settings
     x = 1000
     y = 750
-    customtkinter.CTk.title = "Test123"
+    tkinter.ttk.title = "Test123"
 
     root = tkinter.Tk()
     root.geometry(f"{x}x{y}")

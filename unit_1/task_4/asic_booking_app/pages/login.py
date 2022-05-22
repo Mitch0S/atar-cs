@@ -10,6 +10,8 @@ class LoginScreen:
         pass
 
     def load(self, **kwargs):
+        print('[DEBUG] Login page loaded')
+
         self.root = kwargs['root']
         root = self.root
         self.x = kwargs['x']
@@ -44,19 +46,27 @@ class LoginScreen:
         asic_logo_label.place(x=x/2, y=y/2-200, anchor='center')
 
         # Places Login Text below Logo
-        asic_login_text = tkinter.ttk.Label(root, text='ASIC Booking App', font='catamaran')
+        asic_login_text = tkinter.ttk.Label(root, text='ASIC Booking App - Login', font='catamaran')
         self.login_screen_elements.append(asic_login_text)
-        asic_login_text.place(x=x / 2, y=y / 2 - 80, anchor='center')
+        asic_login_text.place(x=x / 2, y=y / 2 - 100, anchor='center')
 
         # Places Membership Number Entry box on login screen
         self.membership_number_entry = customtkinter.CTkEntry(root, width=240, placeholder_text="Membership Number", fg_color='white', text_color='black', placeholder_text_color='gray')
         self.login_screen_elements.append(self.membership_number_entry)
-        membership_number_entry_label = self.membership_number_entry.place(x=x / 2, y=y / 2, anchor='center')
+        self.membership_number_entry.place(x=x / 2, y=y / 2, anchor='center')
 
         # Places Membership Number Submit button on login screen
         login_submit_button = customtkinter.CTkButton(root, text="Login", fg_color='gray', hover_color='dark gray', command=self.do_login)
         self.login_screen_elements.append(login_submit_button)
         login_submit_button.place(x=x / 2, y=y / 2 + 100, anchor='center')
+
+        # Places Membership Number Submit button on login screen
+        load_register_page = customtkinter.CTkButton(root, text='Register?', text_color='dark grey', hover=False, fg_color=None, hover_color=None, command=self.load_registration_page)
+        self.login_screen_elements.append(load_register_page)
+        load_register_page.configure()
+        load_register_page.place(x=x / 2, y=y / 2 + 150, anchor='center')
+
+
 
         self.root.mainloop()
 
@@ -77,7 +87,7 @@ class LoginScreen:
                     print(f'[DEBUG] Element `{element}` could not be destroyed.')
 
 
-            HomeScreen().load(membership_number=membership_number, root=self.root, x=self.x, y=self.y, data={'membership_number': membership_number})
+            HomeScreen().load(root=self.root, x=self.x, y=self.y, data={'membership_number': membership_number})
 
             print('[DEBUG] Loading home page')
 
@@ -87,3 +97,14 @@ class LoginScreen:
             self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
             self.login_screen_elements.append(self.error_text)
             self.error_text.place(x=self.x/2, y=self.y/2+40, anchor='center')
+
+    def load_registration_page(self):
+        from .register import RegisterScreen
+        for element in self.login_screen_elements:
+            try:
+                element.destroy()
+            except:
+                print(f'[DEBUG] Element `{element}` could not be destroyed.')
+
+        RegisterScreen().load(root=self.root, x=self.x, y=self.y, data={})
+

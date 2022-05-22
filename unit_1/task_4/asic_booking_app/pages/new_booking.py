@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import customtkinter
 from .sql import SQL
+from tkinter.messagebox import showinfo
 
 class NewBookingScreen:
     def __init__(self, **kwargs):
@@ -30,29 +31,33 @@ class NewBookingScreen:
 
         # Places the element background image on Background
         element_box = Image.open("./resources/images/element_box.png")
-        element_box = element_box.resize((300, 500))
+        element_box = element_box.resize((500, 700))
         element_box = ImageTk.PhotoImage(element_box)
         element_box_label = tkinter.ttk.Label(root, image=element_box)
         self.new_booking_screen_elements.append(element_box_label)
-        element_box_label.place(x=x / 2, y=y / 2 - 75, anchor='center')
+        element_box_label.place(x=x / 2, y=y / 2, anchor='center')
 
-        # Places ASIC Logo on login screen
+        # Place ASIC Logo on the top left of the screen
         asic_logo = Image.open("./resources/images/asic_logo.png")
-        asic_logo = asic_logo.resize((150, 150))
+        asic_logo = asic_logo.resize((100, 100))
         asic_logo = ImageTk.PhotoImage(asic_logo)
         asic_logo_label = tkinter.ttk.Label(root, image=asic_logo)
         self.new_booking_screen_elements.append(asic_logo_label)
-        asic_logo_label.place(x=x/2, y=y/2-200, anchor='center')
+        asic_logo_label.place(x=x / 2 - 175, y=y / 2 - 275, anchor='center')
 
-        # Places Login Text below Logo
-        asic_new_booking_text = tkinter.ttk.Label(root, text='ASIC Booking App', font='catamaran')
-        self.new_booking_screen_elements.append(asic_new_booking_text)
-        asic_new_booking_text.place(x=x / 2, y=y / 2 - 80, anchor='center')
+        # Places "ASIC Booking App" Text below Logo
+        asic_login_text = tkinter.ttk.Label(root, text='ASIC Booking App', font=('catamaran', 40, 'italic'), )
+        self.new_booking_screen_elements.append(asic_login_text)
+        asic_login_text.place(x=x / 2 + 55, y=y / 2 - 275, anchor='center')
 
-        back_to_home = customtkinter.CTkButton(root, text="Back", fg_color='gray', hover_color='dark gray',
-                                                      command=self.back_to_home_button)
+        # Places "Home" Text below Logo
+        asic_login_text = tkinter.ttk.Label(root, text='Home', font=('catamaran', 20, 'italic'), )
+        self.new_booking_screen_elements.append(asic_login_text)
+        asic_login_text.place(x=x / 2, y=y / 2 - 200, anchor='center')
+
+        back_to_home = customtkinter.CTkButton(root, text="Cancel", fg_color='gray', hover_color='dark gray', command=self.back_to_home_button)
         self.new_booking_screen_elements.append(back_to_home)
-        back_to_home.place(x=x / 2, y=y / 2 + 100, anchor='center')
+        back_to_home.place(x=x / 2, y=y / 2 + 300, anchor='center')
 
 
         root.mainloop()
