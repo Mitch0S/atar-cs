@@ -6,7 +6,7 @@ import customtkinter
 from .sql import SQL
 import datetime
 
-class NewBookingScreen:
+class EditBookingScreen:
     def __init__(self, **kwargs):
         pass
 
@@ -53,7 +53,7 @@ class NewBookingScreen:
         asic_login_text.place(x=x / 2 + 55, y=y / 2 - 275, anchor='center')
 
         # Places "Home" Text below Logo
-        asic_login_text = tkinter.ttk.Label(root, text='Create a Booking', font=('catamaran', 20, 'italic'), )
+        asic_login_text = tkinter.ttk.Label(root, text='Edit Booking', font=('catamaran', 20, 'italic'), )
         self.new_booking_screen_elements.append(asic_login_text)
         asic_login_text.place(x=x / 2, y=y / 2 - 200, anchor='center')
 
@@ -113,11 +113,6 @@ class NewBookingScreen:
             if query['data']['available'] == True:
                 SQL().create_booking(attendee_id=attendee_id, workshop_id=self.workshop_dict[self.default_workshop_booking.get()])
 
-                try:
-                    self.error_text.destroy()
-                finally:
-                    pass
-
                 self.confirm_booking_button.destroy()
                 self.back_to_home_button.destroy()
 
@@ -127,13 +122,13 @@ class NewBookingScreen:
 
                 self.success_text = tkinter.ttk.Label(text=f'Successfully booked the workshop. You may return to home.', foreground='light green')
                 self.new_booking_screen_elements.append(self.success_text)
-                self.success_text.place(x=self.x / 2, y=self.y / 2 + 230, anchor='center')
+                self.success_text.place(x=self.x / 2, y=self.y / 2 + 225, anchor='center')
 
 
-        else:
-            self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
-            self.new_booking_screen_elements.append(self.error_text)
-            self.error_text.place(x=self.x / 2, y=self.y / 2 + 230, anchor='center')
+            else:
+                self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
+                self.login_screen_elements.append(self.error_text)
+                self.error_text.place(x=self.x / 2, y=self.y / 2 + 40, anchor='center')
 
 
 

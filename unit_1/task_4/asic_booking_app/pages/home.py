@@ -1,9 +1,10 @@
 import tkinter
+import traceback
 from tkinter import ttk
 from PIL import Image, ImageTk
 import customtkinter
 from .sql import SQL
-import time
+import textwrap
 import datetime
 
 class HomeScreen:
@@ -12,7 +13,9 @@ class HomeScreen:
 
     def load(self, **kwargs):
 
-        print('[DEBUG] User logged in')
+        self.membership_number = kwargs["data"]["membership_number"]
+
+        print(f'[DEBUG] User logged in ({self.membership_number})')
 
         self.data = kwargs['data']
         data = self.data
@@ -26,25 +29,6 @@ class HomeScreen:
         y = self.y
 
         self.home_screen_elements = []
-
-        """
-          1) Check if a user has a booking
-        
-        1.1) Global Elements
-               - Logo (TOP LEFT)
-               - "Home Page" Label
-        
-        1.2) If they don't have a booking, load the following:
-               - `Create Booking` Button
-               - "No booking, create one" label
-               
-        1.3)  If they do have a booking, load the following:
-               - "Your Booking" Label
-               - "Booking Details" Label
-               - `Change Booking` button
-               - `Remove Booking` button
-        """
-
 
         # Places the Purple-Blue Gradient on Background
         background_gradient = Image.open("./resources/images/app_gradient.png")
@@ -72,7 +56,7 @@ class HomeScreen:
         # Places "ASIC Booking App" Text below Logo
         asic_login_text = tkinter.ttk.Label(root, text='ASIC Booking App', font=('catamaran', 40, 'italic'), )
         self.home_screen_elements.append(asic_login_text)
-        asic_login_text.place(x=x / 2+55, y=y / 2 - 275, anchor='center')
+        asic_login_text.place(x=x / 2+55, y=y / 2 - 300, anchor='center')
 
         # Places "Home" Text below Logo
         asic_login_text = tkinter.ttk.Label(root, text='Home', font=('catamaran', 20, 'italic'), )
@@ -80,10 +64,21 @@ class HomeScreen:
         asic_login_text.place(x=x / 2, y=y / 2 - 200, anchor='center')
 
         # Places Membership Number Submit button on login screen
-        login_submit_button = customtkinter.CTkButton(root, text="Logout", fg_color='gray',
-                                                      hover_color='dark gray', command=self.do_logout)
-        self.home_screen_elements.append(login_submit_button)
-        login_submit_button.place(x=x/2 - 185, y=y/2 + 330, anchor='center')
+        logout_submit_button = customtkinter.CTkButton(root, text="Logout", text_color='dark grey', hover=False, fg_color=None, hover_color=None, command=self.do_logout)
+        self.home_screen_elements.append(logout_submit_button)
+        logout_submit_button.place(x=x/2 - 192, y=y/2 + 320, anchor='center')
+
+        try:
+            query = SQL().check_membership_number(membership_number=kwargs['data']['membership_number'])
+            first_name = query['data']['user'][1]
+            if len(first_name) > 25:
+                welcome_name_text = tkinter.ttk.Label(root, text=f'Welcome, {first_name[0:24]}...!', font=('catamaran', 20, 'italic', 'underline'), )
+            else:
+                welcome_name_text = tkinter.ttk.Label(root, text=f'Welcome, {first_name}!', font=('catamaran', 20, 'italic', 'underline'), )
+            self.home_screen_elements.append(welcome_name_text)
+            welcome_name_text.place(x=x / 2 + 40, y=y / 2 - 250, anchor='center')
+        except:
+            traceback.print_exc()
 
         query = SQL().get_attendee_booking(membership_number=self.data['membership_number'])
         if query['status'] == 'ok':
@@ -103,14 +98,16 @@ class HomeScreen:
 
         booking_data = kwargs['booking_data']
 
-        self.label_info_1 = customtkinter.CTkLabel(root,
+        newline = '\n                      '
+
+        self.booking_details = customtkinter.CTkLabel(root,
                                                    text=f"""
-                       Your Booking
-                   --------------------
+                                  Your Booking
+                              --------------------
                 
 Workshop: {booking_data[2]}
     
-Description: {booking_data[3]}
+Description: {newline.join(textwrap.wrap(booking_data[3], 45))}
     
 Presenter: {booking_data[0]} {booking_data[1]}
 
@@ -125,23 +122,21 @@ Room Number: {booking_data[6]}
                                                    width=200,
                                                    fg_color=("white", "gray38"),  # <- custom tuple-color
                                                    justify=tkinter.LEFT)
-        self.label_info_1.place(x=x/2, y=y/2, anchor='center')
+        self.booking_details.place(x=x/2, y=y/2, anchor='center')
 
         # Places Membership Number Submit button on login screen
-        change_booking_button = customtkinter.CTkButton(root, text="Change Booking", fg_color='gray', hover_color='dark gray')
+        change_booking_button = customtkinter.CTkButton(root, text="Change Booking", fg_color='gray', hover_color='dark gray', command=self.edit_booking_button)
         self.home_screen_elements.append(change_booking_button)
         change_booking_button.place(x=x / 2-75, y=y / 2 + 200, anchor='center')
 
         # Places Membership Number Submit button on login screen
-        login_submit_button = customtkinter.CTkButton(root, text="Cancel Booking", fg_color='gray', hover_color='dark gray')
-        self.home_screen_elements.append(login_submit_button)
-        login_submit_button.place(x=x / 2+75, y=y / 2 + 200, anchor='center')
+        cancel_booking_button = customtkinter.CTkButton(root, text="Cancel Booking", fg_color='gray', hover_color='dark gray', command=self.cancel_booking_button)
+        self.home_screen_elements.append(cancel_booking_button)
+        cancel_booking_button.place(x=x / 2+75, y=y / 2 + 200, anchor='center')
 
         print('[DEBUG] Home window loaded successfully')
 
         root.mainloop()
-
-        # Places Membership Number Submit button on login screen
 
     def has_no_booking(self, **kwargs):
         root = self.root
@@ -165,8 +160,7 @@ Room Number: {booking_data[6]}
         self.booking_details.place(x=x / 2, y=y / 2, anchor='center')
 
         # Places Membership Number Submit button on login screen
-        new_booking_button = customtkinter.CTkButton(root, text="New Booking", fg_color='gray',
-                                                        hover_color='dark gray', command=self.do_new_booking_button)
+        new_booking_button = customtkinter.CTkButton(root, text="New Booking", fg_color='gray', hover_color='dark gray', command=self.do_new_booking_button)
         self.home_screen_elements.append(new_booking_button)
         new_booking_button.place(x=x / 2, y=y / 2 + 200, anchor='center')
 
@@ -184,6 +178,24 @@ Room Number: {booking_data[6]}
         NewBookingScreen().load(root=self.root, x=self.x, y=self.y, data=self.data)
 
 
+    def cancel_booking_button(self):
+        query = SQL().check_membership_number(membership_number=self.membership_number)
+        if query['status'] == 'ok':
+            attendee_id = query['data']['user'][0]
+            print(attendee_id)
+            SQL().delete_booking(attendee_id=attendee_id)
+            HomeScreen().load(x=self.x, y=self.y, root=self.root, data={'membership_number': self.membership_number})
+
+    def edit_booking_button(self):
+        from .edit_booking import EditBookingScreen
+        for element in self.home_screen_elements:
+            try:
+                element.destroy()
+            except:
+                print(f'[DEBUG] Element `{element}` could not be destroyed.')
+
+        EditBookingScreen().load(root=self.root, x=self.x, y=self.y, data=self.data)
+
 
     def do_logout(self):
         from .login import LoginScreen
@@ -193,8 +205,5 @@ Room Number: {booking_data[6]}
             except:
                 print(f'[DEBUG] Element `{element}` could not be destroyed.')
 
-        print('[DEBUG] User logged out.')
+        print(f'[DEBUG] User logged out ({self.membership_number})')
         LoginScreen().load(root=self.root, x=self.x, y=self.y)
-
-
-

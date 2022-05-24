@@ -64,9 +64,9 @@ class RegisterScreen:
         self.login_screen_elements.append(self.email_entry)
         self.email_entry.place(x=x / 2, y=y / 2, anchor='center')
 
-        self.default_list_value = tkinter.StringVar()
-        self.default_list_value.set("+61")
-        self.country_code = tkinter.ttk.OptionMenu(root, self.default_list_value, "+61", "+61", "+38", "+39", "+28", "+35", "+93")
+        self.default_country_code = tkinter.StringVar()
+        self.default_country_code.set("+61")
+        self.country_code = tkinter.ttk.OptionMenu(root, self.default_country_code, "+61", "+61", "+38", "+39", "+28", "+35", "+93")
         self.country_code.place(x=x/2 - 85, y=y/2 + 50, anchor="center")
 
 
@@ -85,24 +85,24 @@ class RegisterScreen:
         company_list = ['Company']
         company_data = SQL().get_companies()
         if company_data['status'] == 'ok':
-            company_dict = company_data['data']['companies']
-            for company in company_dict:
+            self.company_dict = company_data['data']['companies']
+            for company in self.company_dict:
                 company_list.append(company)
 
         self.default_company_value = tkinter.StringVar()
         self.default_company_value.set("Company")
-        self.default_company_value = tkinter.ttk.OptionMenu(root, self.default_company_value, *company_list)
-        self.default_company_value.place(x=x / 2, y=y / 2 + 142.5, anchor="center")
+        self.company_value = tkinter.ttk.OptionMenu(root, self.default_company_value, *company_list)
+        self.company_value.place(x=x / 2, y=y / 2 + 142.5, anchor="center")
 
-        self.shirt_size_value = tkinter.StringVar()
-        self.shirt_size_value.set("Shirt Size")
-        self.shirt_size_value = tkinter.ttk.OptionMenu(root, self.shirt_size_value, "Shirt Size", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL")
+        self.default_shirt_size_value = tkinter.StringVar()
+        self.default_shirt_size_value.set("Shirt Size")
+        self.shirt_size_value = tkinter.ttk.OptionMenu(root, self.default_shirt_size_value, "Shirt Size", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL")
         self.shirt_size_value.place(x=x / 2, y=y / 2 + 180, anchor="center")
 
 
 
         # Places Membership Number Submit button on login screen
-        register_submit_button = customtkinter.CTkButton(root, text="Register", fg_color='gray', hover_color='dark gray') #command=self.do_registration)
+        register_submit_button = customtkinter.CTkButton(root, text="Register", fg_color='gray', hover_color='dark gray', command=self.do_registration)
         self.login_screen_elements.append(register_submit_button)
         register_submit_button.place(x=x / 2, y=y / 2 + 275, anchor='center')
 
@@ -115,32 +115,48 @@ class RegisterScreen:
         self.root.mainloop()
 
     def do_registration(self):
-        membership_number = self.membership_number_entry.get()
-        query = SQL().check_membership_number(membership_number=membership_number)
         try:
-            self.error_text.destroy()
-            self.success_text.destroy()
-        except:
-            pass
-
-        if query['status'] == 'ok':
-            for element in self.login_screen_elements:
-                try:
-                    element.destroy()
-                except:
-                    print(f'[DEBUG] Element `{element}` could not be destroyed.')
+            first_name = self.first_name_entry.get()
+            last_name = self.last_name_entry.get()
+            email = self.email_entry.get()
+            mobile_number = self.default_country_code.get() + self.phone_entry.get()
+            membership_number = self.membership_number_entry.get()
+            company_id = self.company_dict[self.default_company_value.get()]
+            shirt_size = self.default_shirt_size_value.get()
 
 
-            HomeScreen().load(membership_number=membership_number, root=self.root, x=self.x, y=self.y, data={'membership_number': membership_number})
+            query = SQL().registration(first_name=first_name,
+                                       last_name=last_name,
+                                       email=email,
+                                       mobile_number=mobile_number,
+                                       membership_number=membership_number,
+                                       company_id=company_id,
+                                       shirt_size=shirt_size)
 
-            print('[DEBUG] Loading home page')
+            try:
+                self.error_text.destroy()
+            except:
+                pass
 
+            if query['status'] == 'ok':
+                for element in self.login_screen_elements:
+                    try:
+                        element.destroy()
+                    except:
+                        print(f'[DEBUG] Element `{element}` could not be destroyed.')
 
-        else:
-            print(f"[DEBUG] Error: {query['reason'].strip()}")
-            self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
+                HomeScreen().load(root=self.root, x=self.x, y=self.y, data={'membership_number': membership_number})
+            else:
+                print(f"[DEBUG] Error: {query['reason'].strip()}")
+                self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
+                self.login_screen_elements.append(self.error_text)
+                self.error_text.place(x=self.x / 2, y=self.y / 2 + 225, anchor='center')
+
+        except KeyError as error:
+            print(f"[DEBUG] Error: {error}")
+            self.error_text = tkinter.ttk.Label(text=f'Error, dropdown boxes can not be left as default', foreground='red')
             self.login_screen_elements.append(self.error_text)
-            self.error_text.place(x=self.x/2, y=self.y/2+40, anchor='center')
+            self.error_text.place(x=self.x / 2, y=self.y / 2 + 225, anchor='center')
 
     def load_registration_page(self):
         from .login import LoginScreen
