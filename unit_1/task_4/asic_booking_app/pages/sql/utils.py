@@ -211,12 +211,12 @@ class SQL:
         sql = f"""
             UPDATE workshop_bookings
                SET workshop_id = {kwargs['workshop_id']}
-               AND attendee_id = {kwargs['attendee_id']}
+               WHERE attendee_id = {kwargs['attendee_id']}
                """
 
-        query = cursor.execute(sql)
+        cursor.execute(sql)
         connection.commit()
-        return {'status': 'ok', 'reason': 'successfully deleted booking'}
+        return {'status': 'ok', 'reason': 'successfully updated booking'}
 
 
 # SQL().get_workshop_details(workshop_id=2)

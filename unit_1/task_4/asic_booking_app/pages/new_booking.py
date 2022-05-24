@@ -115,7 +115,7 @@ class NewBookingScreen:
 
                 try:
                     self.error_text.destroy()
-                finally:
+                except:
                     pass
 
                 self.confirm_booking_button.destroy()

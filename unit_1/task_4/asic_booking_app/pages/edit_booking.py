@@ -22,7 +22,7 @@ class EditBookingScreen:
         y = self.y
 
         self.membership_number = kwargs['data']['membership_number']
-        self.new_booking_screen_elements = []
+        self.edit_booking_screen_elements = []
 
         # Places the Purple-Blue Gradient on Background
         background_gradient = Image.open("./resources/images/app_gradient.png")
@@ -36,7 +36,7 @@ class EditBookingScreen:
         element_box = element_box.resize((500, 700))
         element_box = ImageTk.PhotoImage(element_box)
         element_box_label = tkinter.ttk.Label(root, image=element_box)
-        self.new_booking_screen_elements.append(element_box_label)
+        self.edit_booking_screen_elements.append(element_box_label)
         element_box_label.place(x=x / 2, y=y / 2, anchor='center')
 
         # Place ASIC Logo on the top left of the screen
@@ -44,17 +44,17 @@ class EditBookingScreen:
         asic_logo = asic_logo.resize((100, 100))
         asic_logo = ImageTk.PhotoImage(asic_logo)
         asic_logo_label = tkinter.ttk.Label(root, image=asic_logo)
-        self.new_booking_screen_elements.append(asic_logo_label)
+        self.edit_booking_screen_elements.append(asic_logo_label)
         asic_logo_label.place(x=x / 2 - 175, y=y / 2 - 275, anchor='center')
 
         # Places "ASIC Booking App" Text below Logo
         asic_login_text = tkinter.ttk.Label(root, text='ASIC Booking App', font=('catamaran', 40, 'italic'), )
-        self.new_booking_screen_elements.append(asic_login_text)
+        self.edit_booking_screen_elements.append(asic_login_text)
         asic_login_text.place(x=x / 2 + 55, y=y / 2 - 275, anchor='center')
 
         # Places "Home" Text below Logo
         asic_login_text = tkinter.ttk.Label(root, text='Edit Booking', font=('catamaran', 20, 'italic'), )
-        self.new_booking_screen_elements.append(asic_login_text)
+        self.edit_booking_screen_elements.append(asic_login_text)
         asic_login_text.place(x=x / 2, y=y / 2 - 200, anchor='center')
 
         query = SQL().get_workshops()
@@ -73,7 +73,7 @@ class EditBookingScreen:
         self.workshop_booking.place(x=x / 2, y=y / 2 - 150, anchor="center")
 
         self.back_to_home_button = customtkinter.CTkButton(root, text="Cancel", text_color='dark grey', hover=False, fg_color=None, hover_color=None, command=self.back_to_home)
-        self.new_booking_screen_elements.append(self.back_to_home_button)
+        self.edit_booking_screen_elements.append(self.back_to_home_button)
         self.back_to_home_button.place(x=x / 2, y=y / 2 + 320, anchor='center')
 
         newline = '\n'
@@ -84,7 +84,7 @@ class EditBookingScreen:
         self.workshop_info.place(x=self.x / 2, y=self.y / 2 + 35, anchor='center')
 
         self.confirm_booking_button = customtkinter.CTkButton(root, text="Confirm", fg_color='gray', hover_color='dark gray', command=self.confirm_booking)
-        self.new_booking_screen_elements.append(self.confirm_booking_button)
+        self.edit_booking_screen_elements.append(self.confirm_booking_button)
         self.confirm_booking_button.place(x=x / 2, y=y / 2 + 270, anchor='center')
 
         root.mainloop()
@@ -92,7 +92,7 @@ class EditBookingScreen:
     def back_to_home(self, **kwargs):
         print('Back to home')
         from .home import HomeScreen
-        for element in self.new_booking_screen_elements:
+        for element in self.edit_booking_screen_elements:
             try:
                 element.destroy()
             except:
@@ -102,7 +102,7 @@ class EditBookingScreen:
 
 
 
-    def confirm_booking(self, **kwargs):
+    def confirm_booking(self):
         query = SQL().check_membership_number(membership_number=self.membership_number)
         if query['status'] == 'ok':
             attendee_id = query['data']['user'][0]
@@ -111,24 +111,24 @@ class EditBookingScreen:
         query = SQL().get_booking_availability(workshop_id=self.workshop_dict[self.default_workshop_booking.get()])
         if query['status'] == 'ok':
             if query['data']['available'] == True:
-                SQL().create_booking(attendee_id=attendee_id, workshop_id=self.workshop_dict[self.default_workshop_booking.get()])
+                SQL().edit_booking(attendee_id=attendee_id, workshop_id=self.workshop_dict[self.default_workshop_booking.get()])
 
                 self.confirm_booking_button.destroy()
                 self.back_to_home_button.destroy()
 
                 self.home_button = customtkinter.CTkButton(self.root, text="Home", fg_color='gray', hover_color='dark gray', command=self.back_to_home)
-                self.new_booking_screen_elements.append(self.home_button)
+                self.edit_booking_screen_elements.append(self.home_button)
                 self.home_button.place(x=self.x / 2, y=self.y / 2 + 290, anchor='center')
 
-                self.success_text = tkinter.ttk.Label(text=f'Successfully booked the workshop. You may return to home.', foreground='light green')
-                self.new_booking_screen_elements.append(self.success_text)
-                self.success_text.place(x=self.x / 2, y=self.y / 2 + 225, anchor='center')
+                self.success_text = tkinter.ttk.Label(text=f'Successfully updated your booking. You may return to home.', foreground='light green')
+                self.edit_booking_screen_elements.append(self.success_text)
+                self.success_text.place(x=self.x / 2, y=self.y / 2 + 230, anchor='center')
 
 
-            else:
-                self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
-                self.login_screen_elements.append(self.error_text)
-                self.error_text.place(x=self.x / 2, y=self.y / 2 + 40, anchor='center')
+        else:
+            self.error_text = tkinter.ttk.Label(text=f'Error, {query["reason"]}', foreground='red')
+            self.edit_booking_screen_elements.append(self.error_text)
+            self.error_text.place(x=self.x / 2, y=self.y / 2 + 230, anchor='center')
 
 
 
